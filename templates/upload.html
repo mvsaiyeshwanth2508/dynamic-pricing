@@ -1,0 +1,144 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Upload Data - Dynamic Pricing Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-container">
+      <a href="{{ url_for('index') }}" class="nav-brand">
+        <ion-icon name="analytics-outline" aria-hidden="true"></ion-icon>
+        Dynamic Pricing
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('upload') }}">Upload</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1><ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon> Upload Sales Data</h1>
+        <p>Upload your CSV or Excel file to generate AI-powered pricing insights</p>
+      </div>
+
+      <div class="card fade-in">
+        <form action="{{ url_for('upload') }}" method="post" enctype="multipart/form-data">
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="document-outline" aria-hidden="true"></ion-icon>
+              Upload CSV/XLSX File
+            </label>
+            <input type="file" name="file" accept=".csv,.xlsx,.xls,.txt" required class="form-input">
+          </div>
+
+          <div class="text-center mb-3">
+            <span style="color: var(--text-secondary); font-weight: 600;">— OR —</span>
+          </div>
+
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="clipboard-outline" aria-hidden="true"></ion-icon>
+              Paste CSV Data
+            </label>
+            <textarea name="raw_text" rows="6" placeholder="date,product_id,price,qty,revenue,..." class="form-textarea"></textarea>
+          </div>
+
+          <hr style="margin: 2rem 0; border: none; border-top: 1px solid var(--border-color);">
+
+          <div class="form-group">
+            <label class="form-label">
+              <ion-icon name="calendar-outline" aria-hidden="true"></ion-icon>
+              Filter by Date (optional)
+            </label>
+            <div class="grid grid-cols-2" style="gap: 1rem;">
+              <div>
+                <label class="form-label" style="font-weight: normal; font-size: 0.9rem;">Start Date</label>
+                <input type="date" name="start_date" class="form-input">
+              </div>
+              <div>
+                <label class="form-label" style="font-weight: normal; font-size: 0.9rem;">End Date</label>
+                <input type="date" name="end_date" class="form-input">
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center">
+            <button type="submit" class="btn btn-primary btn-lg">
+              <ion-icon name="analytics-outline" aria-hidden="true"></ion-icon>
+              Analyze Data
+            </button>
+          </div>
+        </form>
+      </div>
+
+      <div class="text-center">
+        <a href="{{ url_for('index') }}" class="btn btn-secondary">
+          <ion-icon name="arrow-back-outline" aria-hidden="true"></ion-icon>
+          Back to Home
+        </a>
+      </div>
+
+      <!-- AI-Powered Multi-Variable Insights Section -->
+      {% if ai_insight and ai_insight.coefficients %}
+      <div class="card fade-in">
+        <h3><ion-icon name="calculator-outline" aria-hidden="true"></ion-icon> Multi-Variable Insights</h3>
+        <div class="grid grid-cols-2" style="gap: 2rem; margin-bottom: 2rem;">
+          <div class="stat-card">
+            <span class="stat-number" style="font-size: 1.5rem;">{{ ai_insight.model_type }}</span>
+            <div class="stat-label">Model Type</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">{{ ai_insight.r2_score }}</span>
+            <div class="stat-label">R² Score</div>
+          </div>
+        </div>
+        
+        <div class="mb-3">
+          <h4 style="color: var(--text-primary); margin-bottom: 1rem;">Coefficients:</h4>
+          <div class="grid grid-cols-2" style="gap: 1rem;">
+            {% for feature, coef in ai_insight.coefficients.items() %}
+            <div class="alert alert-success" style="margin-bottom: 0; padding: 0.75rem;">
+              <strong>{{ feature }}:</strong> {{ coef }}
+            </div>
+            {% endfor %}
+          </div>
+        </div>
+        
+        <div class="grid grid-cols-2" style="gap: 2rem;">
+          <div class="stat-card">
+            <span class="stat-number">₹{{ ai_insight.optimal_price }}</span>
+            <div class="stat-label">Suggested Optimal Price</div>
+          </div>
+          {% if ai_insight.optimal_discount %}
+          <div class="stat-card">
+            <span class="stat-number">{{ ai_insight.optimal_discount }}%</span>
+            <div class="stat-label">Suggested Optimal Discount</div>
+          </div>
+          {% endif %}
+        </div>
+        
+        <img src="{{ url_for('static', filename='price_discount_volume.png') }}" alt="3D AI Insight">
+      </div>
+      {% elif ai_insight and ai_insight.message %}
+      <div class="card fade-in">
+        <h3><ion-icon name="sparkles-outline" aria-hidden="true"></ion-icon> AI Insight Message</h3>
+        <div class="alert alert-success">
+          {{ ai_insight.message }}
+        </div>
+      </div>
+      {% endif %}
+    </div>
+  </div>
+</body>
+</html>

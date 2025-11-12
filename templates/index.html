@@ -1,0 +1,73 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dynamic Pricing Analytics - AI-Powered Business Intelligence</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-container">
+      <a href="{{ url_for('index') }}" class="nav-brand">
+        <ion-icon name="analytics-outline" aria-hidden="true"></ion-icon>
+        Dynamic Pricing
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('upload') }}">Upload</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <section class="hero">
+    <div class="container hero-content">
+      <h1 class="fade-in">
+        <ion-icon name="analytics-outline" aria-hidden="true"></ion-icon>
+        Dynamic Pricing Analytics
+      </h1>
+      <p class="fade-in">
+        Transform your sales data into actionable insights with AI-powered pricing optimization. 
+        Generate interactive dashboards, predictive analytics, and strategic recommendations to maximize revenue.
+      </p>
+      <div class="fade-in">
+        <a href="{{ url_for('upload') }}" class="btn btn-primary btn-lg">
+          <ion-icon name="rocket-outline" aria-hidden="true"></ion-icon>
+          Get Started
+        </a>
+      </div>
+    </div>
+  </section>
+
+  <section class="container" style="padding: 4rem 1rem; background: var(--surface-color);">
+    <div class="grid grid-cols-3" style="gap: 2rem;">
+      <div class="text-center">
+        <div class="card">
+          <ion-icon name="trending-up-outline" style="font-size: 3rem; color: var(--primary-color); margin-bottom: 1rem;"></ion-icon>
+          <h3>Revenue Optimization</h3>
+          <p>AI-driven pricing strategies to maximize your revenue potential and market competitiveness.</p>
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="card">
+          <ion-icon name="bulb-outline" style="font-size: 3rem; color: var(--accent-color); margin-bottom: 1rem;"></ion-icon>
+          <h3>Smart Insights</h3>
+          <p>Advanced analytics and machine learning to uncover hidden patterns in your sales data.</p>
+        </div>
+      </div>
+      <div class="text-center">
+        <div class="card">
+          <ion-icon name="document-text-outline" style="font-size: 3rem; color: var(--success-color); margin-bottom: 1rem;"></ion-icon>
+          <h3>Export Reports</h3>
+          <p>Generate professional PDF reports with charts and recommendations for stakeholders.</p>
+        </div>
+      </div>
+    </div>
+  </section>
+</body>
+</html>

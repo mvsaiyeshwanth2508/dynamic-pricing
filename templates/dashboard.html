@@ -1,0 +1,200 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Dashboard - Dynamic Pricing Analytics</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+  <script type="module" src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.esm.js"></script>
+  <script nomodule src="https://unpkg.com/ionicons@7.1.0/dist/ionicons/ionicons.js"></script>
+</head>
+<body>
+  <nav class="nav">
+    <div class="container nav-container">
+      <a href="{{ url_for('index') }}" class="nav-brand">
+        <ion-icon name="analytics-outline" aria-hidden="true"></ion-icon>
+        Dynamic Pricing
+      </a>
+      <ul class="nav-links">
+        <li><a href="{{ url_for('index') }}">Home</a></li>
+        <li><a href="{{ url_for('upload') }}">Upload</a></li>
+      </ul>
+    </div>
+  </nav>
+
+  <div class="dashboard">
+    <div class="container">
+      <div class="dashboard-header">
+        <h1>Analysis Dashboard</h1>
+        <p>Comprehensive insights from your sales data</p>
+        <a href="{{ url_for('upload') }}" class="btn btn-secondary">
+          <ion-icon name="cloud-upload-outline" aria-hidden="true"></ion-icon>
+          Upload Another File
+        </a>
+      </div>
+
+      <!-- AI-Powered Insights Section -->
+      {% if ai_insight %}
+      <div class="card fade-in">
+        <h3><ion-icon name="bulb-outline" aria-hidden="true"></ion-icon> AI-Powered Insights</h3>
+        <div class="grid grid-cols-3" style="gap: 2rem; margin-bottom: 2rem;">
+          <div class="stat-card">
+            <span class="stat-number">{{ ai_insight.correlation }}</span>
+            <div class="stat-label">Correlation</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number" style="font-size: 1.5rem;">{{ ai_insight.trend.split('(')[0].strip() }}</span>
+            <div class="stat-label">Trend</div>
+          </div>
+          <div class="stat-card">
+            <span class="stat-number">₹{{ ai_insight.optimal_price }}</span>
+            <div class="stat-label">Optimal Price</div>
+          </div>
+        </div>
+        <img src="{{ url_for('price_vs_sales_image', upload_id=upload_id) }}" alt="Price vs Volume Chart">
+      </div>
+      {% endif %}
+
+      <!-- Summary Section -->
+      <div class="dashboard-stats">
+        <div class="stat-card fade-in">
+          <span class="stat-number">₹{{ report.summary.total_revenue }}</span>
+          <div class="stat-label">Total Revenue</div>
+        </div>
+        <div class="stat-card fade-in">
+          <span class="stat-number">{{ report.summary.total_volume }}</span>
+          <div class="stat-label">Total Volume</div>
+        </div>
+        <div class="stat-card fade-in">
+          <span class="stat-number">{{ report.summary.num_products }}</span>
+          <div class="stat-label">Products</div>
+        </div>
+        {% if report.summary.date_range is defined %}
+        <div class="stat-card fade-in">
+          <span class="stat-number" style="font-size: 1.2rem;">{{ report.summary.date_range[0] }}</span>
+          <div class="stat-label">Date Range</div>
+          <div style="font-size: 0.9rem; color: var(--text-secondary);">{{ report.summary.date_range[1] }}</div>
+        </div>
+        {% endif %}
+      </div>
+
+      <!-- Charts -->
+      <div class="chart-container fade-in">
+        <h3 class="chart-title">
+          <ion-icon name="trending-up-outline" aria-hidden="true"></ion-icon>
+          Revenue Over Time
+        </h3>
+        <canvas id="revenueChart" width="700" height="300"></canvas>
+      </div>
+
+      <div class="chart-container fade-in">
+        <h3 class="chart-title">
+          <ion-icon name="pricetag-outline" aria-hidden="true"></ion-icon>
+          Sales by Category
+        </h3>
+        <canvas id="categoryChart" width="600" height="300"></canvas>
+      </div>
+
+      <div class="chart-container fade-in">
+        <h3 class="chart-title">
+          <ion-icon name="cash-outline" aria-hidden="true"></ion-icon>
+          Discount Effectiveness
+        </h3>
+        <canvas id="discountChart" width="700" height="300"></canvas>
+      </div>
+
+      <!-- Top Products -->
+      <div class="table-container fade-in">
+        <h3 class="chart-title" style="padding: 1.5rem 2rem 0;">
+          <ion-icon name="star-outline" aria-hidden="true"></ion-icon>
+          Top Products
+        </h3>
+        <table class="table">
+          <thead>
+            <tr>
+              <th>Product</th>
+              <th>Revenue</th>
+              <th>Volume</th>
+              <th>Avg Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for p in report.top_products %}
+            <tr>
+              <td>{{ p.Product_ID }}</td>
+              <td>₹{{ "%.2f"|format(p.Revenue) }}</td>
+              <td>{{ "%.0f"|format(p.Sales_Volume) }}</td>
+              <td>₹{{ "%.2f"|format(p.Price_Set) }}</td>
+            </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+
+      <!-- Recommendations -->
+      <div class="card fade-in">
+        <h3><ion-icon name="bulb-outline" aria-hidden="true"></ion-icon> Strategic Recommendations</h3>
+        <div style="display: grid; gap: 1rem;">
+          {% for rec in report.recommendations %}
+          <div class="alert alert-success" style="margin-bottom: 0;">
+            <strong>{{ rec.product }}:</strong> {{ rec.action }} — <em>{{ rec.justification }}</em>
+          </div>
+          {% endfor %}
+        </div>
+      </div>
+
+  <!-- Charts Logic -->
+  <script>
+    const report = {{ report|tojson }};
+
+    // Revenue Chart
+    const ctx1 = document.getElementById('revenueChart').getContext('2d');
+    new Chart(ctx1, {
+      type: 'line',
+      data: {
+        labels: report.time_series.map(d => d.Date),
+        datasets: [{
+          label: 'Revenue',
+          data: report.time_series.map(d => d.Revenue),
+          borderColor: '#0078d7',
+          fill: false
+        }]
+      }
+    });
+
+    // Category Chart
+    const ctx2 = document.getElementById('categoryChart').getContext('2d');
+    new Chart(ctx2, {
+      type: 'bar',
+      data: {
+        labels: report.by_category.map(d => d.Product_Category),
+        datasets: [{
+          label: 'Revenue',
+          data: report.by_category.map(d => d.Revenue),
+          backgroundColor: '#00b894'
+        }]
+      }
+    });
+
+    // Discount Effectiveness
+    const ctx3 = document.getElementById('discountChart').getContext('2d');
+    new Chart(ctx3, {
+      type: 'bar',
+      data: {
+        labels: report.discount_effect.map(d => d.Discount_Bucket),
+        datasets: [{
+          label: 'Avg Sales Volume',
+          data: report.discount_effect.map(d => d.Sales_Volume),
+          backgroundColor: '#0984e3'
+        }]
+      }
+    });
+  </script>
+    </div>
+  </div>
+</body>
+</html>

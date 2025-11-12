@@ -1,0 +1,31 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8">
+  <title>Dynamic Pricing Dashboard</title>
+  <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/modern-normalize/modern-normalize.css">
+  <link rel="stylesheet" href="{{ url_for('static', filename='style.css') }}">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+<body>
+  <header>
+    <h1>Dynamic Pricing Analysis Dashboard</h1>
+    <nav><a href="{{ url_for('index') }}">Home</a> | <a href="{{ url_for('upload') }}">Upload Data</a></nav>
+  </header>
+  <main>
+    {% with messages = get_flashed_messages(with_categories=true) %}
+      {% if messages %}
+        <ul id="flash">
+          {% for cat,msg in messages %}
+            <li class="flash-{{cat}}">{{msg}}</li>
+          {% endfor %}
+        </ul>
+      {% endif %}
+    {% endwith %}
+    {% block content %}{% endblock %}
+  </main>
+  <footer>
+    <small>Built from Web Analytics mini project spec. See project report. :contentReference[oaicite:2]{index=2}</small>
+  </footer>
+</body>
+</html>
